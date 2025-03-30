@@ -1,16 +1,14 @@
-version: '3.8'
-
 services:
-  app:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    ports:
-      - "8080:8080"
-    depends_on:
-      - postgres
-      - redis
-      - kafka
+#  app:
+#    build:
+#      context: .
+#      dockerfile: docker/Dockerfile
+#    ports:
+#      - "8080:8080"
+#    depends_on:
+#      - postgres
+#      - redis
+#      - kafka
 
   postgres:
     image: postgres:14

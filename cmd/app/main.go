@@ -8,6 +8,7 @@ import (
 	"github.com/enson89/order-management-system/internal/repository"
 	"github.com/enson89/order-management-system/internal/routes"
 	"github.com/enson89/order-management-system/internal/service"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"log"
 	"net/http"
 )
@@ -43,6 +44,9 @@ func main() {
 
 	// Initialize routes
 	router := routes.InitRoutes(orderHandler)
+	// Swagger documentation route
+	router.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
+	http.ListenAndServe(":8080", router)
 
 	// Start HTTP server
 	log.Println("Server started at port:", cfg.Server.Port)

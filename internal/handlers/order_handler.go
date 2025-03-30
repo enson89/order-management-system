@@ -18,6 +18,15 @@ func NewOrderHandler(svc *service.OrderService) *OrderHandler {
 	return &OrderHandler{Service: svc}
 }
 
+// @Summary Create Order
+// @Description Create a new order
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param order body db.Order true "Order Request"
+// @Success 201 {object} db.Order
+// @Failure 400 {string} string "Invalid request"
+// @Router /orders [post]
 func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	var order db.Order
 	if err := json.NewDecoder(r.Body).Decode(&order); err != nil {
@@ -33,6 +42,15 @@ func (h *OrderHandler) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(order)
 }
 
+// @Summary Get Order
+// @Description Get an order by ID
+// @Tags orders
+// @Accept json
+// @Produce json
+// @Param id path int true "Order ID"
+// @Success 200 {object} db.Order
+// @Failure 404 {string} string "Order not found"
+// @Router /orders/{id} [get]
 func (h *OrderHandler) GetOrderById(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	id, _ := strconv.Atoi(params["id"])

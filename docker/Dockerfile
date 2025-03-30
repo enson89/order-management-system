@@ -1,5 +1,5 @@
 # Use Golang image
-FROM golang:1.20
+FROM golang:1.24
 
 WORKDIR /app
 

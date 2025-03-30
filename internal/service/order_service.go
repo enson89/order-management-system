@@ -14,13 +14,13 @@ import (
 const cacheTTL = 5 * time.Minute
 
 type OrderService struct {
-	Repo  *repository.OrderRepository
+	Repo  repository.OrderRepositoryInterface
 	Cache *cache.RedisCache
 	Kafka string
 	Topic string
 }
 
-func NewOrderService(repo *repository.OrderRepository, cache *cache.RedisCache, kafkaBroker, topic string) *OrderService {
+func NewOrderService(repo repository.OrderRepositoryInterface, cache *cache.RedisCache, kafkaBroker, topic string) *OrderService {
 	return &OrderService{
 		Repo:  repo,
 		Cache: cache,
@@ -31,7 +31,6 @@ func NewOrderService(repo *repository.OrderRepository, cache *cache.RedisCache, 
 
 // CreateOrder creates an order and publishes a Kafka message
 func (s *OrderService) CreateOrder(order *db.Order) error {
-	// Save to DB
 	err := s.Repo.CreateOrder(order)
 	if err != nil {
 		return err
