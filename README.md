@@ -13,11 +13,11 @@ A microservices-based Order Management System built with Golang, PostgreSQL, Red
 - [Folder Structure](#folder-structure)
 - [Prerequisites](#prerequisites)
 - [Setup and Installation](#setup-and-installation)
-  - [Local Development with Docker Compose](#local-development-with-docker-compose)
-  - [Kubernetes Deployment with Minikube](#kubernetes-deployment-with-minikube)
+    - [Local Development with Docker Compose](#local-development-with-docker-compose)
+    - [Kubernetes Deployment with Minikube](#kubernetes-deployment-with-minikube)
+- [Makefile Usage](#makefile-usage)
 - [API Documentation (Swagger)](#api-documentation-swagger)
 - [Running Tests](#running-tests)
-- [Makefile and CI/CD](#makefile-and-cicd)
 - [Troubleshooting](#troubleshooting)
 - [Contributing](#contributing)
 - [License](#license)
@@ -75,9 +75,9 @@ order-management/
 ├── config/
 │   └── config.yaml       # Application configuration file
 ├── deployments/          # Kubernetes manifests for deployments, services, and ingress
-│   ├── kafka-deployment.yaml
-│   ├── order-management-deployment.yaml
-│   ├── service.yaml
+│   ├── app.yaml
+│   ├── redis.yaml
+│   ├── postgres.yaml
 │   └── ingress.yaml
 ├── docker/
 │   └── Dockerfile        # Dockerfile for building a multi-arch image
@@ -93,7 +93,8 @@ order-management/
 ├── scripts/              # Helper scripts (e.g., SQL initialization)
 ├── go.mod                # Go module file
 ├── go.sum                # Go module checksums
-└── Makefile              # Automation for building, deploying, and testing
+├── Makefile              # Automation for building, testing, and deploying
+└── README.md             # Documentation
 ```
 
 ---
@@ -145,50 +146,103 @@ Before you begin, ensure you have the following installed:
 1. **Start Minikube:**
 
    ```bash
-   minikube start --driver=docker
+   make minikube-start
    ```
 
-2. **Enable the Ingress Addon:**
+2. **Deploy the Application:**
 
+   Deploy application, Redis, PostgreSQL, and Ingress manifests using:
    ```bash
-   minikube addons enable ingress
+   make deploy-minikube
    ```
 
-3. **Deploy the Manifests:**
+3. **Open Minikube Tunnel:**
 
-   Apply the Kubernetes manifests located in the `deployments/` directory:
-
+   If using a LoadBalancer or exposing services, run:
    ```bash
-   kubectl apply -f deployments/
+   sudo make minikube-tunnel
    ```
 
-4. **Configure Your Hosts File:**
-
-   - Get your Minikube IP:
-
-     ```bash
-     minikube ip
-     ```
-
-   - Edit your `/etc/hosts` file and add an entry (replace `<minikube-ip>` with your actual Minikube IP):
-
-     ```
-     <minikube-ip>  order.local
-     ```
-
-   - Flush your DNS cache:
-
-     ```bash
-     sudo dscacheutil -flushcache; sudo killall -HUP mDNSResponder
-     ```
-
-5. **Access the Application:**
+4. **Access the Application:**
 
    Open your browser and navigate to:
 
    ```
    http://order.local
    ```
+
+---
+
+## Makefile Usage
+
+The project includes a `Makefile` to automate various tasks such as building, testing, and deploying the application.
+
+### 🚀 **Common Targets**
+
+- **Run All Checks and Execute Locally:**
+```bash
+make all
+```
+
+- **Build and Run Locally:**
+```bash
+make run
+```
+
+- **Check Code Quality:**
+```bash
+make lint
+```
+
+- **Check Code Format:**
+```bash
+make format
+```
+
+- **Check for Vulnerabilities:**
+```bash
+make vulncheck
+```
+
+- **Run Tests:**
+```bash
+make test
+```
+
+- **Build Docker Image:**
+```bash
+make docker-build
+```
+
+- **Push Docker Image:**
+```bash
+make docker-push
+```
+
+- **Start Minikube and Enable Ingress:**
+```bash
+make minikube-start
+```
+
+- **Deploy to Minikube:**
+```bash
+make deploy-minikube
+```
+
+- **Open Minikube Tunnel:**
+```bash
+sudo make minikube-tunnel
+```
+
+- **Delete Minikube Cluster:**
+```bash
+make delete-minikube
+```
+
+- **Clean Up:**
+```bash
+make clean
+```
 
 ---
 
@@ -234,72 +288,34 @@ Before you begin, ensure you have the following installed:
 
 ---
 
-## Makefile and CI/CD
-
-A Makefile is provided to automate common tasks:
-
-### Common Commands
-
-- **Start Minikube with Ingress:**
-
-  ```bash
-  make minikube-start
-  ```
-
-- **Build and Load Docker Image:**
-
-  ```bash
-  make docker-build
-  ```
-
-- **Deploy to Kubernetes:**
-
-  ```bash
-  make deploy
-  ```
-
-- **Push Docker Image to Registry:**
-
-  ```bash
-  make docker-push
-  ```
-
-- **Clean Up:**
-
-  ```bash
-  make clean
-  ```
-
----
-
 ## Troubleshooting
 
 - **Service Endpoints Not Found:**
-  - Verify that your Deployment’s pod template has the label `app: order-management`.
-  - Check endpoints with:
-    ```bash
-    kubectl get endpoints order-management
-    ```
+    - Verify that your Deployment’s pod template has the label `app: order-management`.
+    - Check endpoints with:
+      ```bash
+      kubectl get endpoints order-management
+      ```
 
 - **Ingress Not Routing Traffic:**
-  - Confirm that your Ingress has an ADDRESS by running:
-    ```bash
-    kubectl get ingress order-management-ingress
-    ```
-  - Ensure your `/etc/hosts` file maps `order.local` to your Minikube IP.
+    - Confirm that your Ingress has an ADDRESS by running:
+      ```bash
+      kubectl get ingress order-management-ingress
+      ```
+    - Ensure your `/etc/hosts` file maps `order.local` to your Minikube IP.
 
 - **Pod Readiness Issues:**
-  - Inspect your pods:
-    ```bash
-    kubectl describe pod <pod-name>
-    ```
-  - Verify that readiness probes are passing.
+    - Inspect your pods:
+      ```bash
+      kubectl describe pod <pod-name>
+      ```
+    - Verify that readiness probes are passing.
 
 - **Logs and Events:**
-  - Check Ingress controller logs for errors:
-    ```bash
-    kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
-    ```
+    - Check Ingress controller logs for errors:
+      ```bash
+      kubectl logs -n ingress-nginx -l app.kubernetes.io/name=ingress-nginx
+      ```
 
 ---
 
