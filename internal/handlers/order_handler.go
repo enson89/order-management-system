@@ -18,6 +18,22 @@ func NewOrderHandler(svc *service.OrderService) *OrderHandler {
 	return &OrderHandler{Service: svc}
 }
 
+// HealthCheck godoc
+// @Summary Health Check
+// @Description Returns the health status of the application
+// @Tags health
+// @Produce json
+// @Success 200 {object} map[string]string
+// @Router /health [get]
+func (h *OrderHandler) HealthCheck(w http.ResponseWriter, r *http.Request) {
+	// Set the header to JSON
+	w.Header().Set("Content-Type", "application/json")
+	// Write HTTP 200 OK status
+	w.WriteHeader(http.StatusOK)
+	// Return a JSON response with a health status message
+	json.NewEncoder(w).Encode(map[string]string{"status": "healthy"})
+}
+
 // @Summary Create Order
 // @Description Create a new order
 // @Tags orders

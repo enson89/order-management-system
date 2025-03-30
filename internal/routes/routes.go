@@ -8,6 +8,7 @@ import (
 
 func InitRoutes(handler *handlers.OrderHandler) *mux.Router {
 	router := mux.NewRouter()
+	router.HandleFunc("/health", handler.HealthCheck).Methods("GET")
 	router.HandleFunc("/orders", handler.CreateOrder).Methods("POST")
 	router.HandleFunc("/orders/{id}", handler.GetOrderById).Methods("GET")
 	return router
